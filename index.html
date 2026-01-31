@@ -6,16 +6,20 @@
     <title>Health Tracker</title>
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #141414;
-            --bg-card: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #888888;
+            --bg-primary: #191919;
+            --bg-secondary: #1e1e1e;
+            --bg-card: #232323;
+            --bg-hover: #2a2a2a;
+            --text-primary: #e4e4e4;
+            --text-secondary: #737373;
+            --text-muted: #525252;
             --accent-green: #22c55e;
             --accent-yellow: #eab308;
             --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --border-color: #2a2a2a;
+            --accent-blue: #60a5fa;
+            --accent-orange: #f97316;
+            --border-color: #333333;
+            --border-subtle: #2a2a2a;
         }
 
         * {
@@ -25,91 +29,119 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 80px;
+            padding: 16px;
+            padding-bottom: 72px;
+            font-size: 13px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 540px;
             margin: 0 auto;
         }
 
+        /* Header - Claude Code style */
         header {
-            text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         header h1 {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 500;
             margin-bottom: 4px;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
         }
 
         header p {
-            color: var(--text-secondary);
-            font-size: 14px;
+            color: var(--text-muted);
+            font-size: 12px;
         }
 
+        /* Date Navigation */
         .date-nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 24px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
         }
 
         .date-nav button {
-            background: var(--bg-card);
+            background: transparent;
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            color: var(--text-secondary);
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 18px;
-            transition: background 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
         }
 
         .date-nav button:hover {
-            background: var(--bg-secondary);
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
         }
 
         .date-nav .current-date {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 500;
-            min-width: 180px;
-            text-align: center;
+            color: var(--text-primary);
         }
 
+        /* Sections - Terminal card style */
         .section {
             background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
         }
 
         .section-title {
-            font-size: 14px;
-            color: var(--text-secondary);
+            font-size: 11px;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+            font-weight: 500;
         }
 
-        /* Macro Progress Bars */
+        .section-content {
+            padding: 14px;
+        }
+
+        /* Macro Progress - Terminal style */
         .macro-grid {
-            display: grid;
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
         .macro-item {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .macro-header {
@@ -119,30 +151,32 @@
         }
 
         .macro-name {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .macro-value {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .macro-target {
             font-size: 12px;
             color: var(--text-secondary);
         }
 
+        .macro-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .macro-target {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
         .progress-bar {
-            height: 8px;
+            height: 4px;
             background: var(--bg-secondary);
-            border-radius: 4px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            border-radius: 4px;
+            border-radius: 2px;
             transition: width 0.3s ease;
         }
 
@@ -151,32 +185,45 @@
         .progress-fill.red { background: var(--accent-red); }
         .progress-fill.blue { background: var(--accent-blue); }
 
-        /* Streak */
+        /* Streak - Prominent display */
         .streak-display {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
+            gap: 16px;
+            padding: 8px 0;
         }
 
         .streak-number {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 700;
             color: var(--accent-green);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .streak-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .streak-label {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--text-secondary);
         }
 
-        /* Meals List */
+        .streak-sublabel {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Meal Items - Log entry style */
         .meal-item {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .meal-item:last-child {
@@ -190,90 +237,95 @@
 
         .meal-info {
             flex: 1;
+            min-width: 0;
         }
 
         .meal-type {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
+            font-size: 11px;
+            color: var(--accent-orange);
+            margin-bottom: 3px;
+            font-weight: 500;
         }
 
         .meal-desc {
-            font-size: 14px;
+            font-size: 12px;
             line-height: 1.4;
             margin-bottom: 4px;
+            color: var(--text-primary);
+            word-wrap: break-word;
         }
 
         .meal-macros {
-            font-size: 12px;
-            color: var(--text-secondary);
+            font-size: 11px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
         }
 
         .tier-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-left: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 10px;
             flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .tier-badge.green {
-            background: rgba(34, 197, 94, 0.2);
+            background: rgba(34, 197, 94, 0.15);
             color: var(--accent-green);
+            border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
         .tier-badge.yellow {
-            background: rgba(234, 179, 8, 0.2);
+            background: rgba(234, 179, 8, 0.15);
             color: var(--accent-yellow);
+            border: 1px solid rgba(234, 179, 8, 0.3);
         }
 
         .tier-badge.red {
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.15);
             color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        /* Trend Chart */
+        /* Chart Container */
         .chart-container {
-            height: 200px;
+            height: 180px;
             position: relative;
         }
 
-        .chart-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        /* Weekly Summary */
+        /* Weekly Stats - Grid */
         .weekly-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .stat-box {
             background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
         }
 
         .stat-label {
-            font-size: 12px;
-            color: var(--text-secondary);
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
-        /* Bottom Nav */
+        /* Bottom Nav - Tab bar style */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -281,30 +333,40 @@
             right: 0;
             background: var(--bg-card);
             border-top: 1px solid var(--border-color);
-            padding: 12px 20px;
+            padding: 8px 16px;
             display: flex;
             justify-content: space-around;
+            backdrop-filter: blur(8px);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            color: var(--text-secondary);
+            gap: 3px;
+            color: var(--text-muted);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 10px;
             cursor: pointer;
             background: none;
             border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--text-secondary);
+            background: var(--bg-hover);
         }
 
         .nav-item.active {
             color: var(--accent-blue);
+            background: rgba(96, 165, 250, 0.1);
         }
 
         .nav-icon {
-            font-size: 20px;
+            font-size: 16px;
         }
 
         /* Tabs */
@@ -319,46 +381,95 @@
         /* No data state */
         .no-data {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
+            padding: 32px 16px;
+            color: var(--text-muted);
         }
 
         .no-data-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.5;
         }
 
-        /* Exercise */
+        .no-data p {
+            font-size: 12px;
+        }
+
+        /* Exercise Items */
         .exercise-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .exercise-item:last-child {
             border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .exercise-item:first-child {
+            padding-top: 0;
         }
 
         .exercise-type {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--accent-blue);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            font-weight: 500;
         }
 
         .exercise-desc {
-            font-size: 14px;
+            font-size: 12px;
             margin-bottom: 4px;
+            color: var(--text-primary);
         }
 
         .exercise-stats {
-            font-size: 12px;
-            color: var(--text-secondary);
+            font-size: 11px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* History date headers */
+        .date-header {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin: 14px 0 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .date-header:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Health Tracker</h1>
+            <h1>health-tracker</h1>
             <p id="phase">Loading...</p>
         </header>
 
@@ -371,60 +482,72 @@
         <!-- Today Tab -->
         <div class="tabs active" id="todayTab">
             <div class="section">
-                <div class="section-title">Daily Progress</div>
-                <div class="macro-grid">
-                    <div class="macro-item">
-                        <div class="macro-header">
-                            <span class="macro-name">Net Carbs</span>
-                            <span><span class="macro-value" id="carbsValue">0</span><span class="macro-target" id="carbsTarget">/75g</span></span>
+                <div class="section-header">
+                    <div class="section-title">Daily Progress</div>
+                </div>
+                <div class="section-content">
+                    <div class="macro-grid">
+                        <div class="macro-item">
+                            <div class="macro-header">
+                                <span class="macro-name">net_carbs</span>
+                                <span><span class="macro-value" id="carbsValue">0</span><span class="macro-target" id="carbsTarget"> / 75g</span></span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="carbsProgress"></div>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="carbsProgress"></div>
+                        <div class="macro-item">
+                            <div class="macro-header">
+                                <span class="macro-name">protein</span>
+                                <span><span class="macro-value" id="proteinValue">0</span><span class="macro-target" id="proteinTarget"> / 116g</span></span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill blue" id="proteinProgress"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="macro-item">
-                        <div class="macro-header">
-                            <span class="macro-name">Protein</span>
-                            <span><span class="macro-value" id="proteinValue">0</span><span class="macro-target" id="proteinTarget">/116g</span></span>
+                        <div class="macro-item">
+                            <div class="macro-header">
+                                <span class="macro-name">saturated_fat</span>
+                                <span><span class="macro-value" id="satFatValue">0</span><span class="macro-target" id="satFatTarget"> / 20g</span></span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="satFatProgress"></div>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill blue" id="proteinProgress"></div>
-                        </div>
-                    </div>
-                    <div class="macro-item">
-                        <div class="macro-header">
-                            <span class="macro-name">Saturated Fat</span>
-                            <span><span class="macro-value" id="satFatValue">0</span><span class="macro-target" id="satFatTarget">/20g</span></span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="satFatProgress"></div>
-                        </div>
-                    </div>
-                    <div class="macro-item">
-                        <div class="macro-header">
-                            <span class="macro-name">Calories</span>
-                            <span><span class="macro-value" id="caloriesValue">0</span><span class="macro-target"> kcal</span></span>
+                        <div class="macro-item">
+                            <div class="macro-header">
+                                <span class="macro-name">calories</span>
+                                <span><span class="macro-value" id="caloriesValue">0</span><span class="macro-target"> kcal</span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Today's Meals</div>
-                <div id="mealsList">
-                    <div class="no-data">
-                        <div class="no-data-icon">🍽️</div>
-                        <p>No meals logged today</p>
+                <div class="section-header">
+                    <div class="section-title">Meals</div>
+                </div>
+                <div class="section-content">
+                    <div id="mealsList">
+                        <div class="no-data">
+                            <div class="no-data-icon">~</div>
+                            <p>No meals logged for this day</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">Today's Exercise</div>
-                <div id="exerciseList">
-                    <div class="no-data">
-                        <div class="no-data-icon">🏃</div>
-                        <p>No exercise logged today</p>
+                <div class="section-header">
+                    <div class="section-title">Exercise</div>
+                </div>
+                <div class="section-content">
+                    <div id="exerciseList">
+                        <div class="no-data">
+                            <div class="no-data-icon">~</div>
+                            <p>No exercise logged for this day</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -433,42 +556,54 @@
         <!-- Trends Tab -->
         <div class="tabs" id="trendsTab">
             <div class="section">
-                <div class="section-title">Current Streak</div>
-                <div class="streak-display">
-                    <span class="streak-number" id="streakCount">0</span>
-                    <div>
-                        <div class="streak-label">days on target</div>
-                        <div class="streak-label" id="streakSubtext">(carbs under 75g)</div>
+                <div class="section-header">
+                    <div class="section-title">Current Streak</div>
+                </div>
+                <div class="section-content">
+                    <div class="streak-display">
+                        <span class="streak-number" id="streakCount">0</span>
+                        <div class="streak-info">
+                            <span class="streak-label">days on target</span>
+                            <span class="streak-sublabel" id="streakSubtext">carbs &lt; 75g</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">This Week</div>
-                <div class="weekly-stats">
-                    <div class="stat-box">
-                        <div class="stat-value" id="weekAvgCarbs">--</div>
-                        <div class="stat-label">Avg Carbs/Day</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="weekAvgProtein">--</div>
-                        <div class="stat-label">Avg Protein/Day</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="weekGreenMeals">--</div>
-                        <div class="stat-label">Green Meals</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="weekExercise">--</div>
-                        <div class="stat-label">Workouts</div>
+                <div class="section-header">
+                    <div class="section-title">This Week</div>
+                </div>
+                <div class="section-content">
+                    <div class="weekly-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="weekAvgCarbs">--</div>
+                            <div class="stat-label">Avg Carbs</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="weekAvgProtein">--</div>
+                            <div class="stat-label">Avg Protein</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="weekGreenMeals">--</div>
+                            <div class="stat-label">Green Meals</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="weekExercise">--</div>
+                            <div class="stat-label">Workouts</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title">7-Day Carb Trend</div>
-                <div class="chart-container">
-                    <canvas id="carbChart"></canvas>
+                <div class="section-header">
+                    <div class="section-title">7-Day Carbs</div>
+                </div>
+                <div class="section-content">
+                    <div class="chart-container">
+                        <canvas id="carbChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -476,11 +611,15 @@
         <!-- History Tab -->
         <div class="tabs" id="historyTab">
             <div class="section">
-                <div class="section-title">Meal History</div>
-                <div id="historyList">
-                    <div class="no-data">
-                        <div class="no-data-icon">📋</div>
-                        <p>Loading history...</p>
+                <div class="section-header">
+                    <div class="section-title">Meal History</div>
+                </div>
+                <div class="section-content">
+                    <div id="historyList">
+                        <div class="no-data">
+                            <div class="no-data-icon">~</div>
+                            <p>Loading history...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -489,15 +628,15 @@
 
     <nav class="bottom-nav">
         <button class="nav-item active" data-tab="todayTab">
-            <span class="nav-icon">📊</span>
+            <span class="nav-icon">◉</span>
             <span>Today</span>
         </button>
         <button class="nav-item" data-tab="trendsTab">
-            <span class="nav-icon">📈</span>
+            <span class="nav-icon">↗</span>
             <span>Trends</span>
         </button>
         <button class="nav-item" data-tab="historyTab">
-            <span class="nav-icon">📋</span>
+            <span class="nav-icon">≡</span>
             <span>History</span>
         </button>
     </nav>
@@ -508,7 +647,6 @@
         let currentDate = new Date();
         let carbChart = null;
 
-        // Format date for display
         function formatDate(date) {
             const today = new Date();
             const yesterday = new Date(today);
@@ -523,24 +661,20 @@
             }
         }
 
-        // Format date as YYYY-MM-DD
         function toDateString(date) {
             return date.toISOString().split('T')[0];
         }
 
-        // Get meals for a specific date
         function getMealsForDate(dateStr) {
             if (!data) return [];
             return data.meals.filter(m => m.date === dateStr);
         }
 
-        // Get exercise for a specific date
         function getExerciseForDate(dateStr) {
             if (!data) return [];
             return data.exercise.filter(e => e.date === dateStr);
         }
 
-        // Calculate daily totals
         function getDailyTotals(dateStr) {
             const meals = getMealsForDate(dateStr);
             return {
@@ -553,14 +687,11 @@
             };
         }
 
-        // Calculate streak
         function calculateStreak() {
             if (!data || !data.meals.length) return 0;
-
             const target = data.profile.targets.net_carbs.max;
             const dates = [...new Set(data.meals.map(m => m.date))].sort().reverse();
             let streak = 0;
-
             for (const date of dates) {
                 const totals = getDailyTotals(date);
                 if (totals.carbs <= target && totals.carbs > 0) {
@@ -569,11 +700,9 @@
                     break;
                 }
             }
-
             return streak;
         }
 
-        // Update the UI for current date
         function updateUI() {
             const dateStr = toDateString(currentDate);
             document.getElementById('currentDate').textContent = formatDate(currentDate);
@@ -581,13 +710,11 @@
             const totals = getDailyTotals(dateStr);
             const targets = data.profile.targets;
 
-            // Update macro values
             document.getElementById('carbsValue').textContent = totals.carbs + 'g';
             document.getElementById('proteinValue').textContent = totals.protein + 'g';
             document.getElementById('satFatValue').textContent = totals.satFat + 'g';
             document.getElementById('caloriesValue').textContent = totals.calories;
 
-            // Update progress bars
             const carbsPct = Math.min((totals.carbs / targets.net_carbs.max) * 100, 100);
             const carbsBar = document.getElementById('carbsProgress');
             carbsBar.style.width = carbsPct + '%';
@@ -601,61 +728,42 @@
             satFatBar.style.width = satFatPct + '%';
             satFatBar.className = 'progress-fill ' + (totals.satFat <= 15 ? 'green' : totals.satFat <= 20 ? 'yellow' : 'red');
 
-            // Update meals list
             const meals = getMealsForDate(dateStr);
             const mealsList = document.getElementById('mealsList');
 
             if (meals.length === 0) {
-                mealsList.innerHTML = `
-                    <div class="no-data">
-                        <div class="no-data-icon">🍽️</div>
-                        <p>No meals logged for this day</p>
-                    </div>
-                `;
+                mealsList.innerHTML = `<div class="no-data"><div class="no-data-icon">~</div><p>No meals logged for this day</p></div>`;
             } else {
                 mealsList.innerHTML = meals.map(meal => `
                     <div class="meal-item">
                         <div class="meal-info">
                             <div class="meal-type">${meal.meal_type} @ ${meal.time}</div>
                             <div class="meal-desc">${meal.description.substring(0, 80)}${meal.description.length > 80 ? '...' : ''}</div>
-                            <div class="meal-macros">C: ${meal.net_carbs}g | P: ${meal.protein}g | F: ${meal.fat}g | ${meal.calories} kcal</div>
+                            <div class="meal-macros">C:${meal.net_carbs}g P:${meal.protein}g F:${meal.fat}g ${meal.calories}kcal</div>
                         </div>
                         <span class="tier-badge ${meal.tier.toLowerCase()}">${meal.tier}</span>
                     </div>
                 `).join('');
             }
 
-            // Update exercise list
             const exercises = getExerciseForDate(dateStr);
             const exerciseList = document.getElementById('exerciseList');
 
             if (exercises.length === 0) {
-                exerciseList.innerHTML = `
-                    <div class="no-data">
-                        <div class="no-data-icon">🏃</div>
-                        <p>No exercise logged for this day</p>
-                    </div>
-                `;
+                exerciseList.innerHTML = `<div class="no-data"><div class="no-data-icon">~</div><p>No exercise logged for this day</p></div>`;
             } else {
                 exerciseList.innerHTML = exercises.map(ex => `
                     <div class="exercise-item">
                         <div class="exercise-type">${ex.type}</div>
                         <div class="exercise-desc">${ex.description}</div>
-                        <div class="exercise-stats">${ex.duration_min} min | ${ex.distance_km}km | ${ex.intensity}</div>
+                        <div class="exercise-stats">${ex.duration_min}min · ${ex.distance_km}km · ${ex.intensity}</div>
                     </div>
                 `).join('');
             }
 
-            // Update streak
             document.getElementById('streakCount').textContent = calculateStreak();
-
-            // Update weekly stats
             updateWeeklyStats();
-
-            // Update chart
             updateChart();
-
-            // Update history
             updateHistory();
         }
 
@@ -667,14 +775,12 @@
                 const d = new Date(today);
                 d.setDate(d.getDate() - i);
                 const dateStr = toDateString(d);
-
                 const totals = getDailyTotals(dateStr);
                 if (totals.carbs > 0) {
                     totalCarbs += totals.carbs;
                     totalProtein += totals.protein;
                     daysWithMeals++;
                 }
-
                 greenMeals += getMealsForDate(dateStr).filter(m => m.tier === 'Green').length;
                 workouts += getExerciseForDate(dateStr).length;
             }
@@ -695,13 +801,11 @@
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-
                 const totals = getDailyTotals(toDateString(d));
                 carbData.push(totals.carbs || 0);
-
-                if (totals.carbs <= 50) colors.push('rgba(34, 197, 94, 0.8)');
-                else if (totals.carbs <= 75) colors.push('rgba(234, 179, 8, 0.8)');
-                else colors.push('rgba(239, 68, 68, 0.8)');
+                if (totals.carbs <= 50) colors.push('rgba(34, 197, 94, 0.85)');
+                else if (totals.carbs <= 75) colors.push('rgba(234, 179, 8, 0.85)');
+                else colors.push('rgba(239, 68, 68, 0.85)');
             }
 
             if (carbChart) carbChart.destroy();
@@ -713,24 +817,23 @@
                     datasets: [{
                         data: carbData,
                         backgroundColor: colors,
-                        borderRadius: 6
+                        borderRadius: 4,
+                        borderSkipped: false
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#888' }
+                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                            ticks: { color: '#525252', font: { size: 10, family: 'SF Mono, Monaco, monospace' } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#888' }
+                            ticks: { color: '#525252', font: { size: 10, family: 'SF Mono, Monaco, monospace' } }
                         }
                     }
                 }
@@ -745,31 +848,25 @@
             });
 
             if (allMeals.length === 0) {
-                historyList.innerHTML = `
-                    <div class="no-data">
-                        <div class="no-data-icon">📋</div>
-                        <p>No meals logged yet</p>
-                    </div>
-                `;
+                historyList.innerHTML = `<div class="no-data"><div class="no-data-icon">~</div><p>No meals logged yet</p></div>`;
                 return;
             }
 
             let currentDateGroup = '';
             let html = '';
 
-            allMeals.forEach(meal => {
+            allMeals.forEach((meal, idx) => {
                 if (meal.date !== currentDateGroup) {
                     currentDateGroup = meal.date;
                     const d = new Date(meal.date + 'T12:00:00');
-                    html += `<div style="color: var(--text-secondary); font-size: 12px; margin: 16px 0 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">${formatDate(d)}</div>`;
+                    html += `<div class="date-header${idx === 0 ? ' first' : ''}">${formatDate(d)}</div>`;
                 }
-
                 html += `
                     <div class="meal-item">
                         <div class="meal-info">
                             <div class="meal-type">${meal.meal_type} @ ${meal.time}</div>
                             <div class="meal-desc">${meal.description.substring(0, 60)}${meal.description.length > 60 ? '...' : ''}</div>
-                            <div class="meal-macros">C: ${meal.net_carbs}g | P: ${meal.protein}g | ${meal.calories} kcal</div>
+                            <div class="meal-macros">C:${meal.net_carbs}g P:${meal.protein}g ${meal.calories}kcal</div>
                         </div>
                         <span class="tier-badge ${meal.tier.toLowerCase()}">${meal.tier}</span>
                     </div>
@@ -779,7 +876,6 @@
             historyList.innerHTML = html;
         }
 
-        // Navigation
         document.getElementById('prevDay').addEventListener('click', () => {
             currentDate.setDate(currentDate.getDate() - 1);
             updateUI();
@@ -790,25 +886,20 @@
             updateUI();
         });
 
-        // Tab navigation
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tabs').forEach(t => t.classList.remove('active'));
-
                 btn.classList.add('active');
                 document.getElementById(btn.dataset.tab).classList.add('active');
             });
         });
 
-        // Load data
         async function loadData() {
             try {
                 const response = await fetch('data.json');
                 data = await response.json();
-
-                document.getElementById('phase').textContent = data.profile.phase + ' - ' + data.profile.goal;
-
+                document.getElementById('phase').textContent = data.profile.phase + ' · ' + data.profile.goal;
                 updateUI();
             } catch (error) {
                 console.error('Error loading data:', error);

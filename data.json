@@ -1,6 +1,6 @@
 {
   "profile": {
-    "name": "Pakho",
+    "name": "User",
     "targets": {
       "net_carbs": { "min": 50, "max": 75 },
       "protein": { "min": 93, "max": 116 },
@@ -8,7 +8,7 @@
       "fiber": { "min": 25, "max": 30 }
     },
     "phase": "Phase 1: Reset",
-    "goal": "Reverse prediabetes (HbA1c 5.9% → <5.5%)"
+    "goal": "Health optimization"
   },
   "meals": [
     {
@@ -17,7 +17,7 @@
       "time": "08:00",
       "day": "Sunday",
       "meal_type": "Breakfast",
-      "description": "Hemp hearts (>1/4 cup), peanut butter (1 tbsp), chia seeds (1/8 cup), mixed nuts (1/4 cup), dried cranberries (10)",
+      "description": "Hemp hearts, peanut butter, chia seeds, mixed nuts, dried cranberries",
       "net_carbs": 23,
       "protein": 22,
       "fat": 35,
@@ -25,7 +25,7 @@
       "fiber": 12,
       "calories": 450,
       "tier": "Yellow",
-      "notes": "High fat/fiber breakfast, nutrient-dense, low saturated fat"
+      "notes": "High fat/fiber breakfast"
     },
     {
       "id": "m002",
@@ -33,7 +33,7 @@
       "time": "11:30",
       "day": "Sunday",
       "meal_type": "Lunch",
-      "description": "Cheesy omelette (2-3 eggs + cheese), sausage (1 link), keto bread (2 slices), vegetable salad with corn/okra/peppers/tomatoes/greens (half portion)",
+      "description": "Omelette with cheese, sausage, keto bread, vegetable salad",
       "net_carbs": 32,
       "protein": 40,
       "fat": 38,
@@ -41,7 +41,7 @@
       "fiber": 10,
       "calories": 550,
       "tier": "Yellow",
-      "notes": "Keto bread was smart choice (4g vs 30g), watch saturated fat from cheese/sausage (14g)"
+      "notes": "Keto bread was smart choice"
     },
     {
       "id": "m003",
@@ -49,7 +49,7 @@
       "time": "19:00",
       "day": "Sunday",
       "meal_type": "Dinner",
-      "description": "Korean grilled short ribs (4-5 pieces, ~6.5oz), cauliflower rice (2 cups), kimchi soup with pumpkin & cabbage (1.5 cups, no corn), Chinese kale/gai lan (1 cup), blistered shishito peppers (7)",
+      "description": "Grilled short ribs, cauliflower rice, kimchi soup, vegetables",
       "net_carbs": 19,
       "protein": 51,
       "fat": 39.5,
@@ -57,7 +57,7 @@
       "fiber": 11,
       "calories": 634,
       "tier": "Green",
-      "notes": "Excellent carb control, but high saturated fat meal (16g). Post-meal squats completed instead of walk due to dark."
+      "notes": "Excellent carb control"
     },
     {
       "id": "m004",
@@ -65,7 +65,7 @@
       "time": "10:30",
       "day": "Monday",
       "meal_type": "Breakfast",
-      "description": "Keto bread (2 slices, toasted), avocado (1/2), tomato (1 medium), poached eggs (2)",
+      "description": "Keto bread, avocado, tomato, poached eggs",
       "net_carbs": 10,
       "protein": 26,
       "fat": 29,
@@ -73,7 +73,7 @@
       "fiber": 22,
       "calories": 412,
       "tier": "Green",
-      "notes": "Perfect low-carb, low saturated fat reset breakfast. Poached eggs = zero added fat. High fiber from keto bread and avocado."
+      "notes": "Perfect low-carb breakfast"
     },
     {
       "id": "m005",
@@ -81,7 +81,7 @@
       "time": "17:00",
       "day": "Monday",
       "meal_type": "Dinner",
-      "description": "Thai coconut curry braised pork shoulder (~5oz), Chinese kale/gai lan (1 cup, grilled)",
+      "description": "Coconut curry braised pork, vegetables",
       "net_carbs": 8,
       "protein": 32,
       "fat": 36,
@@ -89,7 +89,7 @@
       "fiber": 3,
       "calories": 460,
       "tier": "Green",
-      "notes": "Low carbs but coconut curry destroyed saturated fat budget (19g from coconut milk + fatty pork shoulder)."
+      "notes": "Low carbs but high saturated fat"
     },
     {
       "id": "m006",
@@ -97,7 +97,7 @@
       "time": "22:00",
       "day": "Monday",
       "meal_type": "Snack",
-      "description": "Street tacos (2): corn tortillas, carne asada (~4oz total), cilantro, onions, salsa, guacamole, lime, grilled jalapeño",
+      "description": "Street tacos with corn tortillas",
       "net_carbs": 24,
       "protein": 29,
       "fat": 16,
@@ -105,7 +105,7 @@
       "fiber": 6,
       "calories": 355,
       "tier": "Yellow",
-      "notes": "Late night carbs (24g at 10pm) not ideal for glucose control."
+      "notes": "Late night snack"
     },
     {
       "id": "m007",
@@ -113,7 +113,7 @@
       "time": "10:15",
       "day": "Tuesday",
       "meal_type": "Breakfast",
-      "description": "Keto bread (2 slices, toasted), avocado (1/2), tomato (1 medium), poached eggs (2), kale (1 cup), carrots (small amount, ~1/4 cup), hemp hearts (2 tbsp)",
+      "description": "Keto bread, avocado, tomato, poached eggs, kale, hemp hearts",
       "net_carbs": 14,
       "protein": 34,
       "fat": 38.5,
@@ -121,7 +121,7 @@
       "fiber": 26,
       "calories": 552,
       "tier": "Green",
-      "notes": "Excellent breakfast with great additions. Hemp hearts boosted protein and added omega-3s with minimal sat fat."
+      "notes": "Great breakfast with hemp hearts"
     },
     {
       "id": "m008",
@@ -129,7 +129,7 @@
       "time": "18:30",
       "day": "Tuesday",
       "meal_type": "Dinner",
-      "description": "Wife's 40th celebration: Beef tartare (shared), sourdough cheese balls (2), black cod, cavatelli with guanciale/black trumpets/swiss chard, orange panna cotta (shared), chocolate birthday cake (small)",
+      "description": "Special occasion dinner - multiple courses",
       "net_carbs": 106,
       "protein": 80,
       "fat": 83,
@@ -137,7 +137,7 @@
       "fiber": 8,
       "calories": 1340,
       "tier": "Red",
-      "notes": "Special occasion celebration meal - exceeded all daily targets significantly."
+      "notes": "Celebration meal"
     }
   ],
   "exercise": [
@@ -147,7 +147,7 @@
       "time": "08:00",
       "day": "Sunday",
       "type": "Cardio+Strength",
-      "description": "2km run, pull-ups (14,12,10,8), dips (20,18,18,16), rows (18,16,16,16)",
+      "description": "Run, pull-ups, dips, rows",
       "duration_min": 45,
       "distance_km": 2.0,
       "sets_reps": "Pull-ups: 4x44 | Dips: 4x72 | Rows: 4x66",
@@ -160,7 +160,7 @@
       "time": "08:00",
       "day": "Monday",
       "type": "Cardio+HIIT",
-      "description": "2.5km run, 3 hill sprints",
+      "description": "Run, hill sprints",
       "duration_min": 35,
       "distance_km": 2.5,
       "sets_reps": "Hill sprints: 3",
@@ -173,12 +173,12 @@
       "time": "08:00",
       "day": "Thursday",
       "type": "Cardio+Strength",
-      "description": "1.9km run, pull-ups (14,12,10), dips (20,20,20), rows (20,20,20), squats (100), Bulgarian squats (50 each leg)",
+      "description": "Run, pull-ups, dips, rows, squats, Bulgarian squats",
       "duration_min": 45,
       "distance_km": 1.9,
       "sets_reps": "Pull-ups: 3x36 | Dips: 3x60 | Rows: 3x60 | Squats: 100 | Bulgarian: 50+50",
       "intensity": "Moderate",
-      "notes": "Morning workout after celebration dinner, getting back on track"
+      "notes": "Morning workout"
     }
   ],
   "lastUpdated": "2026-01-31T18:30:00Z"
