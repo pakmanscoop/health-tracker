@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent-green: #22c55e;
+            --accent-yellow: #eab308;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --border-color: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .date-nav button {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+
+        .date-nav button:hover {
+            background: var(--bg-secondary);
+        }
+
+        .date-nav .current-date {
+            font-size: 18px;
+            font-weight: 500;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        /* Macro Progress Bars */
+        .macro-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .macro-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .macro-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .macro-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .macro-target {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.green { background: var(--accent-green); }
+        .progress-fill.yellow { background: var(--accent-yellow); }
+        .progress-fill.red { background: var(--accent-red); }
+        .progress-fill.blue { background: var(--accent-blue); }
+
+        /* Streak */
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .streak-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .streak-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Meals List */
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .meal-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .meal-item:first-child {
+            padding-top: 0;
+        }
+
+        .meal-info {
+            flex: 1;
+        }
+
+        .meal-type {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .meal-desc {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .meal-macros {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tier-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .tier-badge.green {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .tier-badge.yellow {
+            background: rgba(234, 179, 8, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .tier-badge.red {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* Trend Chart */
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Weekly Summary */
+        .weekly-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: none;
+        }
+
+        .tabs.active {
+            display: block;
+        }
+
+        /* No data state */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Exercise */
+        .exercise-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .exercise-item:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-type {
+            font-size: 12px;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        .exercise-desc {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .exercise-stats {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Health Tracker</h1>
+            <p id="phase">Loading...</p>
+        </header>
+
+        <div class="date-nav">
+            <button id="prevDay">&larr;</button>
+            <span class="current-date" id="currentDate">Today</span>
+            <button id="nextDay">&rarr;</button>
+        </div>
+
+        <!-- Today Tab -->
+        <div class="tabs active" id="todayTab">
+            <div class="section">
+                <div class="section-title">Daily Progress</div>
+                <div class="macro-grid">
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span class="macro-name">Net Carbs</span>
+                            <span><span class="macro-value" id="carbsValue">0</span><span class="macro-target" id="carbsTarget">/75g</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="carbsProgress"></div>
+                        </div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span class="macro-name">Protein</span>
+                            <span><span class="macro-value" id="proteinValue">0</span><span class="macro-target" id="proteinTarget">/116g</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill blue" id="proteinProgress"></div>
+                        </div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span class="macro-name">Saturated Fat</span>
+                            <span><span class="macro-value" id="satFatValue">0</span><span class="macro-target" id="satFatTarget">/20g</span></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="satFatProgress"></div>
+                        </div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span class="macro-name">Calories</span>
+                            <span><span class="macro-value" id="caloriesValue">0</span><span class="macro-target"> kcal</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Today's Meals</div>
+                <div id="mealsList">
+                    <div class="no-data">
+                        <div class="no-data-icon">🍽️</div>
+                        <p>No meals logged today</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Today's Exercise</div>
+                <div id="exerciseList">
+                    <div class="no-data">
+                        <div class="no-data-icon">🏃</div>
+                        <p>No exercise logged today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div class="tabs" id="trendsTab">
+            <div class="section">
+                <div class="section-title">Current Streak</div>
+                <div class="streak-display">
+                    <span class="streak-number" id="streakCount">0</span>
+                    <div>
+                        <div class="streak-label">days on target</div>
+                        <div class="streak-label" id="streakSubtext">(carbs under 75g)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">This Week</div>
+                <div class="weekly-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekAvgCarbs">--</div>
+                        <div class="stat-label">Avg Carbs/Day</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekAvgProtein">--</div>
+                        <div class="stat-label">Avg Protein/Day</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekGreenMeals">--</div>
+                        <div class="stat-label">Green Meals</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekExercise">--</div>
+                        <div class="stat-label">Workouts</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">7-Day Carb Trend</div>
+                <div class="chart-container">
+                    <canvas id="carbChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="tabs" id="historyTab">
+            <div class="section">
+                <div class="section-title">Meal History</div>
+                <div id="historyList">
+                    <div class="no-data">
+                        <div class="no-data-icon">📋</div>
+                        <p>Loading history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="todayTab">
+            <span class="nav-icon">📊</span>
+            <span>Today</span>
+        </button>
+        <button class="nav-item" data-tab="trendsTab">
+            <span class="nav-icon">📈</span>
+            <span>Trends</span>
+        </button>
+        <button class="nav-item" data-tab="historyTab">
+            <span class="nav-icon">📋</span>
+            <span>History</span>
+        </button>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let data = null;
+        let currentDate = new Date();
+        let carbChart = null;
+
+        // Format date for display
+        function formatDate(date) {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            }
+        }
+
+        // Format date as YYYY-MM-DD
+        function toDateString(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Get meals for a specific date
+        function getMealsForDate(dateStr) {
+            if (!data) return [];
+            return data.meals.filter(m => m.date === dateStr);
+        }
+
+        // Get exercise for a specific date
+        function getExerciseForDate(dateStr) {
+            if (!data) return [];
+            return data.exercise.filter(e => e.date === dateStr);
+        }
+
+        // Calculate daily totals
+        function getDailyTotals(dateStr) {
+            const meals = getMealsForDate(dateStr);
+            return {
+                carbs: meals.reduce((sum, m) => sum + (m.net_carbs || 0), 0),
+                protein: meals.reduce((sum, m) => sum + (m.protein || 0), 0),
+                fat: meals.reduce((sum, m) => sum + (m.fat || 0), 0),
+                satFat: meals.reduce((sum, m) => sum + (m.saturated_fat || 0), 0),
+                fiber: meals.reduce((sum, m) => sum + (m.fiber || 0), 0),
+                calories: meals.reduce((sum, m) => sum + (m.calories || 0), 0)
+            };
+        }
+
+        // Calculate streak
+        function calculateStreak() {
+            if (!data || !data.meals.length) return 0;
+
+            const target = data.profile.targets.net_carbs.max;
+            const dates = [...new Set(data.meals.map(m => m.date))].sort().reverse();
+            let streak = 0;
+
+            for (const date of dates) {
+                const totals = getDailyTotals(date);
+                if (totals.carbs <= target && totals.carbs > 0) {
+                    streak++;
+                } else if (totals.carbs > target) {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        // Update the UI for current date
+        function updateUI() {
+            const dateStr = toDateString(currentDate);
+            document.getElementById('currentDate').textContent = formatDate(currentDate);
+
+            const totals = getDailyTotals(dateStr);
+            const targets = data.profile.targets;
+
+            // Update macro values
+            document.getElementById('carbsValue').textContent = totals.carbs + 'g';
+            document.getElementById('proteinValue').textContent = totals.protein + 'g';
+            document.getElementById('satFatValue').textContent = totals.satFat + 'g';
+            document.getElementById('caloriesValue').textContent = totals.calories;
+
+            // Update progress bars
+            const carbsPct = Math.min((totals.carbs / targets.net_carbs.max) * 100, 100);
+            const carbsBar = document.getElementById('carbsProgress');
+            carbsBar.style.width = carbsPct + '%';
+            carbsBar.className = 'progress-fill ' + (totals.carbs <= 50 ? 'green' : totals.carbs <= 75 ? 'yellow' : 'red');
+
+            const proteinPct = Math.min((totals.protein / targets.protein.max) * 100, 100);
+            document.getElementById('proteinProgress').style.width = proteinPct + '%';
+
+            const satFatPct = Math.min((totals.satFat / targets.saturated_fat.max) * 100, 100);
+            const satFatBar = document.getElementById('satFatProgress');
+            satFatBar.style.width = satFatPct + '%';
+            satFatBar.className = 'progress-fill ' + (totals.satFat <= 15 ? 'green' : totals.satFat <= 20 ? 'yellow' : 'red');
+
+            // Update meals list
+            const meals = getMealsForDate(dateStr);
+            const mealsList = document.getElementById('mealsList');
+
+            if (meals.length === 0) {
+                mealsList.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">🍽️</div>
+                        <p>No meals logged for this day</p>
+                    </div>
+                `;
+            } else {
+                mealsList.innerHTML = meals.map(meal => `
+                    <div class="meal-item">
+                        <div class="meal-info">
+                            <div class="meal-type">${meal.meal_type} @ ${meal.time}</div>
+                            <div class="meal-desc">${meal.description.substring(0, 80)}${meal.description.length > 80 ? '...' : ''}</div>
+                            <div class="meal-macros">C: ${meal.net_carbs}g | P: ${meal.protein}g | F: ${meal.fat}g | ${meal.calories} kcal</div>
+                        </div>
+                        <span class="tier-badge ${meal.tier.toLowerCase()}">${meal.tier}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Update exercise list
+            const exercises = getExerciseForDate(dateStr);
+            const exerciseList = document.getElementById('exerciseList');
+
+            if (exercises.length === 0) {
+                exerciseList.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">🏃</div>
+                        <p>No exercise logged for this day</p>
+                    </div>
+                `;
+            } else {
+                exerciseList.innerHTML = exercises.map(ex => `
+                    <div class="exercise-item">
+                        <div class="exercise-type">${ex.type}</div>
+                        <div class="exercise-desc">${ex.description}</div>
+                        <div class="exercise-stats">${ex.duration_min} min | ${ex.distance_km}km | ${ex.intensity}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Update streak
+            document.getElementById('streakCount').textContent = calculateStreak();
+
+            // Update weekly stats
+            updateWeeklyStats();
+
+            // Update chart
+            updateChart();
+
+            // Update history
+            updateHistory();
+        }
+
+        function updateWeeklyStats() {
+            const today = new Date();
+            let totalCarbs = 0, totalProtein = 0, greenMeals = 0, workouts = 0, daysWithMeals = 0;
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const dateStr = toDateString(d);
+
+                const totals = getDailyTotals(dateStr);
+                if (totals.carbs > 0) {
+                    totalCarbs += totals.carbs;
+                    totalProtein += totals.protein;
+                    daysWithMeals++;
+                }
+
+                greenMeals += getMealsForDate(dateStr).filter(m => m.tier === 'Green').length;
+                workouts += getExerciseForDate(dateStr).length;
+            }
+
+            document.getElementById('weekAvgCarbs').textContent = daysWithMeals > 0 ? Math.round(totalCarbs / daysWithMeals) + 'g' : '--';
+            document.getElementById('weekAvgProtein').textContent = daysWithMeals > 0 ? Math.round(totalProtein / daysWithMeals) + 'g' : '--';
+            document.getElementById('weekGreenMeals').textContent = greenMeals;
+            document.getElementById('weekExercise').textContent = workouts;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('carbChart').getContext('2d');
+            const labels = [];
+            const carbData = [];
+            const colors = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+
+                const totals = getDailyTotals(toDateString(d));
+                carbData.push(totals.carbs || 0);
+
+                if (totals.carbs <= 50) colors.push('rgba(34, 197, 94, 0.8)');
+                else if (totals.carbs <= 75) colors.push('rgba(234, 179, 8, 0.8)');
+                else colors.push('rgba(239, 68, 68, 0.8)');
+            }
+
+            if (carbChart) carbChart.destroy();
+
+            carbChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: carbData,
+                        backgroundColor: colors,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#888' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            const allMeals = [...data.meals].sort((a, b) => {
+                if (a.date !== b.date) return b.date.localeCompare(a.date);
+                return b.time.localeCompare(a.time);
+            });
+
+            if (allMeals.length === 0) {
+                historyList.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">📋</div>
+                        <p>No meals logged yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let currentDateGroup = '';
+            let html = '';
+
+            allMeals.forEach(meal => {
+                if (meal.date !== currentDateGroup) {
+                    currentDateGroup = meal.date;
+                    const d = new Date(meal.date + 'T12:00:00');
+                    html += `<div style="color: var(--text-secondary); font-size: 12px; margin: 16px 0 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">${formatDate(d)}</div>`;
+                }
+
+                html += `
+                    <div class="meal-item">
+                        <div class="meal-info">
+                            <div class="meal-type">${meal.meal_type} @ ${meal.time}</div>
+                            <div class="meal-desc">${meal.description.substring(0, 60)}${meal.description.length > 60 ? '...' : ''}</div>
+                            <div class="meal-macros">C: ${meal.net_carbs}g | P: ${meal.protein}g | ${meal.calories} kcal</div>
+                        </div>
+                        <span class="tier-badge ${meal.tier.toLowerCase()}">${meal.tier}</span>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        // Navigation
+        document.getElementById('prevDay').addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateUI();
+        });
+
+        document.getElementById('nextDay').addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateUI();
+        });
+
+        // Tab navigation
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tabs').forEach(t => t.classList.remove('active'));
+
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                data = await response.json();
+
+                document.getElementById('phase').textContent = data.profile.phase + ' - ' + data.profile.goal;
+
+                updateUI();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('phase').textContent = 'Error loading data';
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
