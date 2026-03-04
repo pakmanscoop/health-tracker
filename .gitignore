@@ -1,2 +1,9 @@
 # Local Netlify folder
 .netlify
+
+# Apple Health export files (large)
+*.xml
+export.zip
+
+# Parser output
+output/
