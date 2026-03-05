@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Parse Apple Health export.xml into compact CSV files for analysis.
+"""Parse Apple Health export.xml into categorized, yearly CSV files.
 
 Streams the XML to handle large files (600MB+) without loading into memory.
-Filters to recent data, strips verbose identifiers, drops bloat fields.
+Organizes output into category folders (activity, heart, body, sleep, etc.)
+with one CSV per type per year. Source names are shortened to save tokens.
 
 Usage:
     python parse_health_export.py export.xml
@@ -29,10 +30,105 @@ TYPE_PREFIXES = [
     "HKWorkoutActivityType",
 ]
 
-RECORD_FIELDS = ["startDate", "endDate", "value", "sourceName"]
+# Map shortened type names to category folders.
+# Prefix matches (e.g. "Dietary" matches "DietaryProtein", "DietaryFat", etc.)
+CATEGORY_MAP = {
+    # Activity
+    "StepCount": "activity",
+    "DistanceWalkingRunning": "activity",
+    "DistanceCycling": "activity",
+    "DistanceSwimming": "activity",
+    "DistanceWheelchair": "activity",
+    "FlightsClimbed": "activity",
+    "ActiveEnergyBurned": "activity",
+    "BasalEnergyBurned": "activity",
+    "AppleExerciseTime": "activity",
+    "WalkingSpeed": "activity",
+    "WalkingStepLength": "activity",
+    "RunningSpeed": "activity",
+    "CyclingSpeed": "activity",
+    "CyclingCadence": "activity",
+    "CyclingPower": "activity",
+    "CyclingFunctionalThresholdPower": "activity",
+    "RunningStrideLength": "activity",
+    "RunningVerticalOscillation": "activity",
+    "RunningGroundContactTime": "activity",
+    "RunningPower": "activity",
+    "PhysicalEffort": "activity",
+    "AppleMoveTime": "activity",
+    "AppleStandTime": "activity",
+    "NikeFuel": "activity",
+    # Heart
+    "HeartRate": "heart",
+    "RestingHeartRate": "heart",
+    "WalkingHeartRateAverage": "heart",
+    "HeartRateVariabilitySDNN": "heart",
+    "HeartRateRecoveryOneMinute": "heart",
+    "VO2Max": "heart",
+    "BloodPressureSystolic": "heart",
+    "BloodPressureDiastolic": "heart",
+    "AtrialFibrillationBurden": "heart",
+    "PeripheralPerfusionIndex": "heart",
+    # Body
+    "BodyMass": "body",
+    "BodyMassIndex": "body",
+    "BodyFatPercentage": "body",
+    "Height": "body",
+    "LeanBodyMass": "body",
+    "WaistCircumference": "body",
+    "BodyTemperature": "body",
+    "ElectrodermalActivity": "body",
+    "AppleSleepingWristTemperature": "body",
+    # Sleep
+    "SleepAnalysis": "sleep",
+    "SleepDurationGoal": "sleep",
+    # Respiratory
+    "OxygenSaturation": "respiratory",
+    "RespiratoryRate": "respiratory",
+    "ForcedExpiratoryVolume1": "respiratory",
+    "ForcedVitalCapacity": "respiratory",
+    "PeakExpiratoryFlowRate": "respiratory",
+    "InhalerUsage": "respiratory",
+    "SixMinuteWalkTestDistance": "respiratory",
+    # Nutrition (prefix match below handles Dietary*)
+    "WaterConsumption": "nutrition",
+    # Mindfulness
+    "MindfulSession": "mindfulness",
+    # Audio
+    "EnvironmentalAudioExposure": "audio",
+    "HeadphoneAudioExposure": "audio",
+    "EnvironmentalSoundReduction": "audio",
+    # Blood / Lab
+    "BloodGlucose": "lab_results",
+    "BloodAlcoholContent": "lab_results",
+    "InsulinDelivery": "lab_results",
+    "NumberOfTimesFallen": "lab_results",
+    # Reproductive
+    "BasalBodyTemperature": "reproductive",
+    "CervicalMucusQuality": "reproductive",
+    "MenstrualFlow": "reproductive",
+    "OvulationTestResult": "reproductive",
+    "SexualActivity": "reproductive",
+    # Mobility
+    "WalkingDoubleSupportPercentage": "mobility",
+    "WalkingAsymmetryPercentage": "mobility",
+    "StairAscentSpeed": "mobility",
+    "StairDescentSpeed": "mobility",
+    "AppleWalkingSteadiness": "mobility",
+    # UV
+    "UVExposure": "other",
+}
+
+# Prefix-based category matching (for types like DietaryProtein, DietaryFat, etc.)
+CATEGORY_PREFIXES = [
+    ("Dietary", "nutrition"),
+    ("Distance", "activity"),
+]
+
+RECORD_FIELDS = ["startDate", "endDate", "value", "src"]
 WORKOUT_FIELDS = [
     "startDate", "endDate", "activityType", "duration", "durationUnit",
-    "totalDistance", "distanceUnit", "totalEnergyBurned", "energyUnit", "sourceName",
+    "totalDistance", "distanceUnit", "totalEnergyBurned", "energyUnit", "src",
 ]
 ACTIVITY_FIELDS = [
     "date", "activeEnergyBurned", "activeEnergyBurnedGoal",
@@ -48,7 +144,6 @@ def parse_date(date_str):
     if not date_str:
         return None
     try:
-        # Strip timezone offset (last 6 chars like ' -0700')
         return datetime.strptime(date_str[:19], "%Y-%m-%d %H:%M:%S")
     except (ValueError, IndexError):
         return None
@@ -60,6 +155,16 @@ def shorten_type(type_name):
         if type_name.startswith(prefix):
             return type_name[len(prefix):]
     return type_name
+
+
+def get_category(short_type):
+    """Return the category folder name for a given shortened type."""
+    if short_type in CATEGORY_MAP:
+        return CATEGORY_MAP[short_type]
+    for prefix, category in CATEGORY_PREFIXES:
+        if short_type.startswith(prefix):
+            return category
+    return "other"
 
 
 def to_snake_case(name):
@@ -76,45 +181,84 @@ def format_date(date_str):
     return date_str[:19]
 
 
+class SourceShortener:
+    """Assigns short codes to source names on-the-fly."""
+
+    def __init__(self):
+        self._map = {}
+        self._counter = 0
+
+    def shorten(self, source_name):
+        if not source_name:
+            return ""
+        if source_name not in self._map:
+            self._counter += 1
+            self._map[source_name] = f"s{self._counter}"
+        return self._map[source_name]
+
+    def get_lookup(self):
+        """Return {short_code: full_name} for summary.json."""
+        return {v: k for k, v in self._map.items()}
+
+
 class CSVWriterManager:
-    """Lazily opens CSV files on first write for each record type."""
+    """Lazily opens CSV files organized by category folder and year."""
 
     def __init__(self, output_dir):
         self.output_dir = output_dir
         self._writers = {}
         self._files = {}
+        self._file_paths = {}  # (type, year) -> relative path from output_dir
 
-    def write_row(self, name, fields, row):
-        """Write a row to the CSV for the given type name."""
-        if name not in self._writers:
-            filename = to_snake_case(name) + ".csv"
-            path = os.path.join(self.output_dir, filename)
+    def write_row(self, type_name, category, year, fields, row):
+        """Write a row to the CSV for the given type/year combo."""
+        key = (type_name, year)
+        if key not in self._writers:
+            cat_dir = os.path.join(self.output_dir, category)
+            os.makedirs(cat_dir, exist_ok=True)
+            filename = f"{to_snake_case(type_name)}_{year}.csv"
+            path = os.path.join(cat_dir, filename)
             f = open(path, "w", newline="", encoding="utf-8")
             writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
             writer.writeheader()
-            self._writers[name] = writer
-            self._files[name] = f
-        self._writers[name].writerow(row)
+            self._writers[key] = writer
+            self._files[key] = f
+            self._file_paths[key] = f"{category}/{filename}"
+        self._writers[key].writerow(row)
 
     def close_all(self):
         for f in self._files.values():
             f.close()
 
-    def get_filenames(self):
-        return {name: to_snake_case(name) + ".csv" for name in self._writers}
+    def get_file_list(self):
+        """Return {category: [relative_paths]} for summary.json."""
+        by_category = defaultdict(list)
+        for (type_name, year), rel_path in sorted(self._file_paths.items()):
+            category = rel_path.split("/")[0]
+            by_category[category].append(rel_path.split("/")[1])
+        return dict(by_category)
+
+    def get_all_paths(self):
+        """Return all relative file paths."""
+        return sorted(self._file_paths.values())
 
 
 def parse_export(input_path, days, output_dir, type_filter, verbose):
-    """Stream-parse the export.xml and write CSV outputs."""
+    """Stream-parse the export.xml and write categorized, yearly CSV outputs."""
     os.makedirs(output_dir, exist_ok=True)
 
-    cutoff = datetime.now() - timedelta(days=days)
+    cutoff = None
+    if days > 0:
+        cutoff = datetime.now() - timedelta(days=days)
+
     csv_mgr = CSVWriterManager(output_dir)
+    source_short = SourceShortener()
 
     # Stats tracking
     counts = defaultdict(int)
     units = {}
-    sources = defaultdict(set)
+    years_seen = set()
+    types_per_category = defaultdict(set)
     date_min = None
     date_max = None
     total_processed = 0
@@ -122,15 +266,8 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
 
     try:
         context = iterparse(input_path, events=("end",))
-        # Get the root element so we can clear it to free memory
-        root = None
 
         for event, elem in context:
-            if root is None:
-                # iterparse doesn't give us root directly; walk up
-                # Actually, we need a different approach - get root from start event
-                pass
-
             tag = elem.tag
 
             if tag == "Record":
@@ -139,25 +276,26 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                     raw_type = elem.get("type", "")
                     short_type = shorten_type(raw_type)
 
-                    # Type filter
                     if type_filter and short_type not in type_filter:
                         elem.clear()
                         continue
 
-                    # Date filter
                     start = parse_date(elem.get("startDate"))
-                    if start and start < cutoff:
+
+                    if cutoff and start and start < cutoff:
                         elem.clear()
                         continue
 
-                    # Track stats
+                    year = start.year if start else 0
+                    category = get_category(short_type)
+
                     counts[short_type] += 1
+                    years_seen.add(year)
+                    types_per_category[category].add(short_type)
+
                     unit = elem.get("unit", "")
                     if unit and short_type not in units:
                         units[short_type] = unit
-                    source = elem.get("sourceName", "")
-                    if source:
-                        sources[short_type].add(source)
 
                     if start:
                         if date_min is None or start < date_min:
@@ -165,13 +303,14 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                         if date_max is None or start > date_max:
                             date_max = start
 
+                    src = source_short.shorten(elem.get("sourceName", ""))
                     row = {
                         "startDate": format_date(elem.get("startDate")),
                         "endDate": format_date(elem.get("endDate")),
                         "value": elem.get("value", ""),
-                        "sourceName": source,
+                        "src": src,
                     }
-                    csv_mgr.write_row(short_type, RECORD_FIELDS, row)
+                    csv_mgr.write_row(short_type, category, year, RECORD_FIELDS, row)
 
                 except Exception:
                     total_skipped += 1
@@ -182,12 +321,16 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                 total_processed += 1
                 try:
                     start = parse_date(elem.get("startDate"))
-                    if start and start < cutoff:
+
+                    if cutoff and start and start < cutoff:
                         elem.clear()
                         continue
 
+                    year = start.year if start else 0
                     activity = shorten_type(elem.get("workoutActivityType", ""))
                     counts["Workout"] += 1
+                    years_seen.add(year)
+                    types_per_category["workouts"].add("Workout")
 
                     if start:
                         if date_min is None or start < date_min:
@@ -195,6 +338,7 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                         if date_max is None or start > date_max:
                             date_max = start
 
+                    src = source_short.shorten(elem.get("sourceName", ""))
                     row = {
                         "startDate": format_date(elem.get("startDate")),
                         "endDate": format_date(elem.get("endDate")),
@@ -205,9 +349,9 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                         "distanceUnit": elem.get("totalDistanceUnit", ""),
                         "totalEnergyBurned": elem.get("totalEnergyBurned", ""),
                         "energyUnit": elem.get("totalEnergyBurnedUnit", ""),
-                        "sourceName": elem.get("sourceName", ""),
+                        "src": src,
                     }
-                    csv_mgr.write_row("Workout", WORKOUT_FIELDS, row)
+                    csv_mgr.write_row("Workout", "workouts", year, WORKOUT_FIELDS, row)
 
                 except Exception:
                     total_skipped += 1
@@ -218,16 +362,20 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                 total_processed += 1
                 try:
                     date_str = elem.get("dateComponents", "")
+                    year = 0
                     if date_str:
                         try:
                             d = datetime.strptime(date_str, "%Y-%m-%d")
-                            if d < cutoff:
+                            year = d.year
+                            if cutoff and d < cutoff:
                                 elem.clear()
                                 continue
                         except ValueError:
                             pass
 
                     counts["ActivitySummary"] += 1
+                    years_seen.add(year)
+                    types_per_category["vitals"].add("ActivitySummary")
 
                     row = {
                         "date": date_str,
@@ -238,7 +386,9 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                         "standHours": elem.get("appleStandHours", ""),
                         "standHoursGoal": elem.get("appleStandHoursGoal", ""),
                     }
-                    csv_mgr.write_row("ActivitySummary", ACTIVITY_FIELDS, row)
+                    csv_mgr.write_row(
+                        "ActivitySummary", "vitals", year, ACTIVITY_FIELDS, row,
+                    )
 
                 except Exception:
                     total_skipped += 1
@@ -246,7 +396,6 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
                 elem.clear()
 
             else:
-                # Clear elements we don't care about to free memory
                 elem.clear()
 
             if verbose and total_processed % 1_000_000 == 0:
@@ -258,22 +407,30 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
 
     csv_mgr.close_all()
 
-    # Write summary
+    # Build summary
+    years_sorted = sorted(y for y in years_seen if y > 0)
+    categories = {}
+    for cat, types in sorted(types_per_category.items()):
+        cat_files = csv_mgr.get_file_list().get(cat, [])
+        categories[cat] = {
+            "types": sorted(types),
+            "files": sorted(cat_files),
+        }
+
     summary = {
+        "description": "Apple Health export parsed into categorized, yearly CSV files. "
+                       "Source names in CSVs use short codes — see sourceLookup below.",
         "dateRange": {
             "start": date_min.strftime("%Y-%m-%d") if date_min else None,
             "end": date_max.strftime("%Y-%m-%d") if date_max else None,
         },
-        "daysIncluded": days,
+        "years": years_sorted,
+        "categories": categories,
         "recordCounts": dict(sorted(counts.items(), key=lambda x: -x[1])),
         "units": units,
-        "sources": {k: sorted(v) for k, v in sources.items()},
-        "totalProcessed": total_processed,
+        "sourceLookup": source_short.get_lookup(),
+        "totalRecords": sum(counts.values()),
         "totalSkipped": total_skipped,
-        "files": {
-            name: filename
-            for name, filename in sorted(csv_mgr.get_filenames().items())
-        },
     }
 
     summary_path = os.path.join(output_dir, "summary.json")
@@ -285,21 +442,22 @@ def parse_export(input_path, days, output_dir, type_filter, verbose):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Parse Apple Health export.xml into compact CSV files.",
+        description="Parse Apple Health export.xml into categorized, yearly CSV files.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
-  %(prog)s export.xml
-  %(prog)s export.xml --days 90 --output-dir ./data
-  %(prog)s export.xml --types StepCount,HeartRate --verbose""",
+  %(prog)s export.xml                          Parse all history
+  %(prog)s export.xml --days 90                Last 90 days only
+  %(prog)s export.xml --types StepCount,HeartRate
+  %(prog)s export.xml --verbose                Show progress""",
     )
     parser.add_argument("input", help="Path to Apple Health export.xml file")
     parser.add_argument(
-        "--days", type=int, default=365,
-        help="Days of history to include (default: 365)",
+        "--days", type=int, default=0,
+        help="Days of history to include (default: 0 = all)",
     )
     parser.add_argument(
         "--output-dir", default="./output",
-        help="Output directory for CSV files (default: ./output)",
+        help="Output directory (default: ./output)",
     )
     parser.add_argument(
         "--types",
@@ -321,7 +479,10 @@ def main():
         type_filter = set(args.types.split(","))
 
     print(f"Parsing {args.input}...")
-    print(f"  Keeping last {args.days} days")
+    if args.days > 0:
+        print(f"  Keeping last {args.days} days")
+    else:
+        print(f"  Keeping all history")
     if type_filter:
         print(f"  Filtering to types: {', '.join(sorted(type_filter))}")
     print(f"  Output: {args.output_dir}/")
@@ -333,14 +494,21 @@ def main():
 
     print("Done!")
     print(f"  Date range: {summary['dateRange']['start']} to {summary['dateRange']['end']}")
-    print(f"  Records: {sum(summary['recordCounts'].values()):,}")
+    print(f"  Years: {', '.join(str(y) for y in summary['years'])}")
+    print(f"  Records: {summary['totalRecords']:,}")
     if summary["totalSkipped"]:
         print(f"  Skipped: {summary['totalSkipped']:,}")
-    print(f"  Files written to {args.output_dir}/:")
-    for name, filename in sorted(summary["files"].items()):
-        count = summary["recordCounts"].get(name, 0)
-        print(f"    {filename} ({count:,} rows)")
-    print(f"    summary.json")
+    print()
+    print(f"  Categories:")
+    for cat, info in sorted(summary["categories"].items()):
+        total = sum(summary["recordCounts"].get(t, 0) for t in info["types"])
+        print(f"    {cat}/ ({total:,} records, {len(info['files'])} files)")
+    print()
+    print(f"  Sources:")
+    for code, name in sorted(summary["sourceLookup"].items()):
+        print(f"    {code} = {name}")
+    print()
+    print(f"  Output: {args.output_dir}/summary.json + {len(summary['categories'])} category folders")
 
 
 if __name__ == "__main__":
